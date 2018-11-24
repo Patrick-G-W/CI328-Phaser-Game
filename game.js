@@ -3,7 +3,6 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 function preload() {
 	game.load.image('sky', 'assets/sky.png');
 	game.load.image('ground', 'assets/ground.png');
-	game.load.image('movingPlatform', 'assets/movingPlatform.png');
 	game.load.image('springs', 'assets/jump.png'); //http://pixelartmaker.com/art/4dae9891e38493b
 	game.load.image('spikes', 'assets/spike.png');
 	game.load.image('spikesRight', 'assets/spikeRightSide.png');
@@ -11,24 +10,17 @@ function preload() {
 	game.load.image('key', 'assets/key.png');
 	game.load.image('door', 'assets/door.png');
 	game.load.image('point', 'assets/point.png');
+	game.load.image('bigPoint', 'assets/bigPoint.png');
 	game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
 	game.load.spritesheet('ghost', 'assets/spider01.png', 32, 48);
 }
 
 var player;
 var platforms;
-var movingPlatforms;
-var movingPlatform;
 var cursors;
 
 var score = 0;
 var scoreText = 'Score: 0';
-var key;
-
-var clouds;
-
-var enemies;
-var enemyspeed = 10;
 
 var springs;
 var spikes;
@@ -38,6 +30,7 @@ var spikesLeft;
 var doors;
 
 var points;
+var bigPoints;
 
 var keys;
 var keyInventory = 0;
@@ -51,8 +44,6 @@ function create() {
 	game.add.sprite(0, 0, 'sky');
 
     game.add.text(10, 10, 'Inventory: ');
-
-    //scoreText = game.add.text(650, 10, 'Score: ' + score);
 
 	platforms = game.add.group();
 
@@ -86,7 +77,7 @@ function create() {
 
 	keys.enableBody = true;
 
-	var key = keys.create(10, 400, 'key');
+	var key = keys.create(10, 150, 'key');
 
 	key.body.gravity.y = 100;
 
@@ -104,15 +95,14 @@ function create() {
 
     points.enableBody = true;
 
-    for (var i = 0; i < 12; i++) {
-        var point = points.create(i * 70, 0, 'point');
+    bigPoints = game.add.group();
 
-        point.body.gravity.y = 300;
+    bigPoints.enableBody = true;
 
-        point.body.bounce.y = 0.7 + Math.random() * 0.2;
-    }
+    var name = bigPoints.create(700, 160, 'bigPoint');
+    name.body.immovable = true;
 
-    scoreText = game.add.text(650, 10, 'score: 0');
+    scoreText = game.add.text(650, 10, 'Score: 0');
 
 	var ground = platforms.create(0, game.world.height - 64, 'ground');
 
@@ -120,16 +110,13 @@ function create() {
 
 	ground.body.immovable = true;
 
-	//movingPlatform = movingPlatforms.create(100, 100, 'movingPlatform');
-
-	movingPlatform = game.add.sprite(100, 100, 'movingPlatform');
-
-	game.physics.arcade.enable(movingPlatform);
-
 	var ledge = platforms.create(400, 400, 'ground');
 	ledge.body.immovable = true;
 
 	ledge = platforms.create(-150, 250, 'ground');
+	ledge.body.immovable = true;
+
+	ledge = platforms.create(600, 210, 'ground');
 	ledge.body.immovable = true;
 
 	player = game.add.sprite(32, game.world.height - 150, 'dude');
@@ -146,26 +133,28 @@ function create() {
 
 	cursors = game.input.keyboard.createCursorKeys();
 
-	placeSpring(360, 520, 'spring1');
+	placeSpring(360, 520);
 
-	placeSpring(440, 380, 'spring2');
+	placeSpring(440, 380);
 
-	placeSpike(300, 510, 'spike1');
+	placeSpike(300, 510);
 
-	placeSpike(200, 510, 'spike2');
+	placeSpike(200, 510);
 
-	placeSpike(400, 370, 'spike3');
+	placeSpike(400, 370);
 
-	placeLeftSpike(370, 400, 'leftSpike1');
+	placeLeftSpike(370, 400);
 
-	placeRightSpike(250, 250, 'rightSpike1');
+	placeLeftSpike(570, 210);
 
+	placeRightSpike(250, 250);
+
+	placePoints();
 }
 
 
 function update() {
     var hitPlatform = game.physics.arcade.collide(player, platforms);
-    var hitmovingPlatform = game.physics.arcade.collide(player, movingPlatform);
     var hitSpring = game.physics.arcade.collide(player, springs);
     var hitSpike = game.physics.arcade.collide(player, spikes);
     var hitSpikeLeft = game.physics.arcade.collide(player, spikesLeft);
@@ -174,6 +163,12 @@ function update() {
     var keyHitPlatform = game.physics.arcade.collide(keys, platforms);
     var hitDoor = game.physics.arcade.collide(player, doors);
     game.physics.arcade.collide(points, platforms);
+    game.physics.arcade.collide(points, doors);
+    game.physics.arcade.collide(points, keys);
+    game.physics.arcade.collide(points, springs);
+    game.physics.arcade.collide(points, spikes);
+    game.physics.arcade.collide(points, spikesLeft);
+    game.physics.arcade.collide(points, spikesRight);
 
     player.body.velocity.x = 0;
 
@@ -219,23 +214,44 @@ function update() {
         game.add.text(game.world.centerX, game.world.centerY, 'You need to collect the key first').lifespan = 1000;
     }
 
-    //if (hitPoint) {
-    //    collectPoint();
-    //}
-
     game.physics.arcade.overlap(player, points, collectPoint, null, this);
+    game.physics.arcade.overlap(player, bigPoints, collectBigPoint, null, this);
 }
 
+function placePoints() {
+    placePoint(140, 500);
+    placePoint(210, 490);
+    placePoint(310, 490);
+	placePoint(330, 370);
+	placePoint(370, 300);
+	placePoint(450, 340);
+	placePoint(550, 360);
+	placePoint(620, 360);
+	placePoint(690, 360);
+	placePoint(650, 170);
+	placePoint(150, 210);
+	placePoint(100, 210);
+
+}
 
 function collectPoint (player, point) {
-
-    // Removes the star from the screen
     point.kill();
 
-    //  Add and update the score
     score += 10;
     scoreText.text = 'Score: ' + score;
 
+}
+
+function collectBigPoint (player, bigPoint) {
+	bigPoint.kill();
+
+	score += 50;
+	scoreText.text = 'Score: ' + score;
+}
+
+function placePoint(x, y) {
+	var name = points.create(x, y, 'point');
+	name.body.immovable = true;
 }
 
 function spike() {
@@ -244,25 +260,25 @@ function spike() {
 	restarting = game.add.text(game.world.centerX - 50, game.world.centerY - 50, 'Restarting in: ' + game.time.events.duration / 1000);
 }
 
-function placeSpike(x, y, name) {
+function placeSpike(x, y) {
 	var name = spikes.create(x, y, 'spikes');
 	name.body.setSize(10, 30, 10);
 	name.body.immovable = true;
 }
 
-function placeLeftSpike(x, y, name) {
+function placeLeftSpike(x, y) {
 	var name = spikesLeft.create(x, y, 'spikesLeft');
 	name.body.setSize(30, 10, 0, 10);
 	name.body.immovable = true;
 }
 
-function placeRightSpike(x, y, name) {
+function placeRightSpike(x, y) {
 	var name = spikesRight.create(x, y, 'spikesRight');
 	name.body.setSize(30, 10, 0, 10);
 	name.body.immovable = true;
 }
 
-function placeSpring(x, y, name) {
+function placeSpring(x, y) {
 	var name = springs.create(x, y, 'springs');
 	name.body.immovable = true;
 }
@@ -274,12 +290,11 @@ function restart() {
 }
 
 function render() {
-	game.debug.body(player);
-	game.debug.physicsGroup(spikes);
-	game.debug.physicsGroup(springs);
-	game.debug.physicsGroup(spikesLeft);
-	game.debug.physicsGroup(spikesRight);
-	game.debug.physicsGroup(keys);
-	game.debug.physicsGroup(springs);
-	game.debug.text(scoreText, 10, 10);
+	//game.debug.body(player);
+	//game.debug.physicsGroup(spikes);
+	//game.debug.physicsGroup(springs);
+	//game.debug.physicsGroup(spikesLeft);
+	//game.debug.physicsGroup(spikesRight);
+	//game.debug.physicsGroup(keys);
+	//game.debug.physicsGroup(springs);
 }
