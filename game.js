@@ -2,7 +2,10 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 
 function preload() {
 	game.load.image('sky', 'assets/sky.png');
+	game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
 	game.load.image('ground', 'assets/ground.png');
+	game.load.image('newGround', 'assets/newGround.png');
+	game.load.image('platform', 'assets/platform.png');
 	game.load.image('springs', 'assets/jump.png'); //http://pixelartmaker.com/art/4dae9891e38493b
 	game.load.image('spikes', 'assets/spike.png');
 	game.load.image('spikesRight', 'assets/spikeRightSide.png');
@@ -11,8 +14,7 @@ function preload() {
 	game.load.image('door', 'assets/door.png');
 	game.load.image('point', 'assets/point.png');
 	game.load.image('bigPoint', 'assets/bigPoint.png');
-	game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-	game.load.spritesheet('ghost', 'assets/spider01.png', 32, 48);
+	game.load.spritesheet('dude', 'assets/spritesheet.png', 23, 34);
 }
 
 var player;
@@ -41,17 +43,18 @@ var restarting;
 function create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
-	game.add.sprite(0, 0, 'sky');
+	//game.add.sprite(0, 0, 'sky');
+
+	var background = game.add.sprite(0, 0, 'background');
+
+	background.height = game.height;
+	background.width = game.width;
 
     game.add.text(10, 10, 'Inventory: ');
 
 	platforms = game.add.group();
 
 	platforms.enableBody = true;
-
-	movingPlatforms = game.add.group();
-
-	movingPlatforms.enableBody = true;
 
 	springs = game.add.group();
 
@@ -104,20 +107,28 @@ function create() {
 
     scoreText = game.add.text(650, 10, 'Score: 0');
 
-	var ground = platforms.create(0, game.world.height - 64, 'ground');
-
-	ground.scale.setTo(2, 2);
+	var ground = platforms.create(0, game.world.height - 64, 'newGround');
 
 	ground.body.immovable = true;
+	ground.body.setSize(800, 100, 0, 5);
 
-	var ledge = platforms.create(400, 400, 'ground');
+	var ledge = platforms.create(400, 400, 'platform');
 	ledge.body.immovable = true;
 
-	ledge = platforms.create(-150, 250, 'ground');
+	ledge.width = 400;
+	ledge.body.setSize(400, 30, 0, 5);
+
+	ledge = platforms.create(-150, 250, 'platform');
 	ledge.body.immovable = true;
 
-	ledge = platforms.create(600, 210, 'ground');
+	ledge.width = 400;
+    ledge.body.setSize(400, 30, 0, 5);
+
+	ledge = platforms.create(600, 210, 'platform');
 	ledge.body.immovable = true;
+
+	ledge.width = 300;
+    ledge.body.setSize(400, 30, 0, 5);
 
 	player = game.add.sprite(32, game.world.height - 150, 'dude');
 
@@ -125,10 +136,10 @@ function create() {
 
 	player.body.gravity.y = 350;
 	player.body.collideWorldBounds = true;
-	player.body.setSize(15, 48, 7,);
+	player.body.setSize(15, 35, 3);
 
-	player.animations.add('left', [0, 1, 2, 3], 10, true);
-	player.animations.add('right', [5, 6, 7, 8], 10, true);
+	player.animations.add('left', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
+	player.animations.add('right', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
 	player.animations.add('death', [3, 5, 6], 10, true);
 
 	cursors = game.input.keyboard.createCursorKeys();
@@ -137,11 +148,11 @@ function create() {
 
 	placeSpring(440, 380);
 
-	placeSpike(300, 510);
+	placeSpike(300, 515);
 
-	placeSpike(200, 510);
+	placeSpike(200, 515);
 
-	placeSpike(400, 370);
+	placeSpike(400, 375);
 
 	placeLeftSpike(370, 400);
 
@@ -172,19 +183,17 @@ function update() {
 
     player.body.velocity.x = 0;
 
+
+
     if (cursors.left.isDown) {
         player.body.velocity.x = -150;
-
         player.animations.play('left');
     } else if (cursors.right.isDown) {
         player.body.velocity.x = 150;
-
         player.animations.play('right');
     } else {
         player.animations.stop();
-
-        player.frame = 4;
-
+        player.frame = 5;
     }
 
     if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
@@ -297,4 +306,5 @@ function render() {
 	//game.debug.physicsGroup(spikesRight);
 	//game.debug.physicsGroup(keys);
 	//game.debug.physicsGroup(springs);
+	//game.debug.physicsGroup(platforms);
 }
