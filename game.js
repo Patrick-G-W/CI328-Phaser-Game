@@ -11,15 +11,26 @@ function preload() {
 	game.load.image('spikesRight', 'assets/spikeRightSide.png');
 	game.load.image('spikesLeft', 'assets/spikeLeftSide.png');
 	game.load.image('key', 'assets/key.png');
-	game.load.image('door', 'assets/door.png');
+	game.load.image('door', 'assets/door.png'); //https://opengameart.org/content/wooden-fortress-and-animated-doors
 	game.load.image('point', 'assets/point.png');
 	game.load.image('bigPoint', 'assets/bigPoint.png');
+	game.load.image('behindDoor', 'assets/behindDoor.png');
+	game.load.audio('soundForest', 'assets/forest.ogg'); //https://freesound.org/people/VKProduktion/sounds/231537/
+	game.load.audio('soundFootstep', 'assets/footstep.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270414/
+	game.load.audio('soundPoint', 'assets/point.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270408/
+	game.load.audio('soundKey', 'assets/key.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270404/
+	game.load.audio('soundWin', 'assets/win.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270402/
+	game.load.audio('soundDoorLock', 'assets/doorLock.ogg'); //https://freesound.org/people/MrAuralization/sounds/158626/
 	game.load.spritesheet('dude', 'assets/spritesheet.png', 23, 34);
+	game.load.spritesheet('bird', 'assets/bird.png', 32, 32);
+	game.load.spritesheet('doorOpening', 'assets/doorOpening.png', 64, 64);
 }
 
 var player;
 var platforms;
 var cursors;
+
+var bird;
 
 var score = 0;
 var scoreText = 'Score: 0';
@@ -30,6 +41,8 @@ var spikesRight;
 var spikesLeft;
 
 var doors;
+var door;
+var behindDoors;
 
 var points;
 var bigPoints;
@@ -37,11 +50,27 @@ var bigPoints;
 var keys;
 var keyInventory = 0;
 
+var soundForest;
+var soundFootstep;
+var soundPoint;
+var soundKey;
+var soundWin;
+var soundDoorLock;
+
 var gameover;
 var restarting;
 
 function create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
+
+	soundForest = game.add.audio('soundForest');
+	soundFootstep = game.add.audio('soundFootstep');
+	soundPoint = game.add.audio('soundPoint');
+	soundKey = game.add.audio('soundKey');
+	soundWin = game.add.audio('soundWin');
+	soundDoorLock = game.add.audio('soundDoorLock');
+
+	soundForest.play('', 0, 0.5, true, false);
 
 	//game.add.sprite(0, 0, 'sky');
 
@@ -51,6 +80,11 @@ function create() {
 	background.width = game.width;
 
     game.add.text(10, 10, 'Inventory: ');
+
+    behindDoors = game.add.group();
+    var behindDoor = behindDoors.create(720, 465, 'behindDoor');
+
+    behindDoor.scale.setTo(1, 1);
 
 	platforms = game.add.group();
 
@@ -90,9 +124,15 @@ function create() {
 
 	doors.enableBody = true;
 
-	var door = doors.create(500, 500, 'door');
+	door = doors.create(730, 475, 'doorOpening');
+
+	door.animations.add('door', [1, 2, 3, 4], 3, false);
 
 	door.body.immovable = true;
+
+	door.frame = 1;
+
+
 
     points = game.add.group();
 
@@ -129,6 +169,16 @@ function create() {
 
 	ledge.width = 300;
     ledge.body.setSize(400, 30, 0, 5);
+
+    bird = game.add.sprite(-50, 30, 'bird');
+
+    game.physics.arcade.enable(bird);
+
+    bird.animations.add('right', [0, 1, 2, 3], 10, true);
+
+    bird.animations.play('right');
+
+    game.add.tween(bird).to({x: 850}, 10000, Phaser.Easing.Quadratic.InOut, true, 5000, 1000, false);
 
 	player = game.add.sprite(32, game.world.height - 150, 'dude');
 
@@ -184,16 +234,28 @@ function update() {
     player.body.velocity.x = 0;
 
 
-
-    if (cursors.left.isDown) {
+    if (cursors.left.isDown && player.body.touching.down) {
         player.body.velocity.x = -150;
         player.animations.play('left');
-    } else if (cursors.right.isDown) {
+        soundFootstep.play('', 0, 1, true, false);
+	}
+    else if (cursors.right.isDown && player.body.touching.down) {
         player.body.velocity.x = 150;
         player.animations.play('right');
-    } else {
+        soundFootstep.play('', 0, 1, true, false);
+	}
+    else if (cursors.left.isDown) {
+        player.body.velocity.x = -150;
+        player.animations.play('left');
+    }
+    else if (cursors.right.isDown) {
+        player.body.velocity.x = 150;
+        player.animations.play('right');
+    }
+    else {
         player.animations.stop();
         player.frame = 5;
+        soundFootstep.stop();
     }
 
     if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
@@ -213,14 +275,19 @@ function update() {
     if (hitKey) {
         game.add.text(game.world.centerX, game.world.centerY, 'You collected a key!').lifespan = 1000;
         keys.destroy();
+        soundKey.play();
         game.add.sprite(150, 20, 'key');
         keyInventory = 1;
     }
 
     if (hitDoor && keyInventory === 1) {
         game.add.text(game.world.centerX, game.world.centerY, 'Level complete');
-    } else if (hitDoor && keyInventory === 0) {
+        door.animations.play('door');
+        soundWin.play('', 0, 1, true, false);
+    }
+    else if (hitDoor && keyInventory === 0) {
         game.add.text(game.world.centerX, game.world.centerY, 'You need to collect the key first').lifespan = 1000;
+        soundDoorLock.play();
     }
 
     game.physics.arcade.overlap(player, points, collectPoint, null, this);
@@ -245,7 +312,7 @@ function placePoints() {
 
 function collectPoint (player, point) {
     point.kill();
-
+	soundPoint.play();
     score += 10;
     scoreText.text = 'Score: ' + score;
 
@@ -253,7 +320,7 @@ function collectPoint (player, point) {
 
 function collectBigPoint (player, bigPoint) {
 	bigPoint.kill();
-
+	soundPoint.play();
 	score += 50;
 	scoreText.text = 'Score: ' + score;
 }
