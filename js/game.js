@@ -1,3 +1,5 @@
+console.log('Game loaded');
+
 var player;
 var platforms;
 var cursors;
@@ -30,10 +32,10 @@ var soundPoint;
 var soundKey;
 var soundWin;
 var soundDoorLock;
+var soundDeath;
 
 var gameover;
 var restarting;
-
 
 var stars;
 
@@ -62,12 +64,14 @@ var Game = {
         game.load.image('bigPoint', 'assets/bigPoint.png');
         game.load.image('behindDoor', 'assets/behindDoor.png');
         game.load.image('button', 'assets/dude.png');
+        game.load.image('blood', 'assets/blood.png');
         game.load.audio('soundForest', 'assets/forest.ogg'); //https://freesound.org/people/VKProduktion/sounds/231537/
         game.load.audio('soundFootstep', 'assets/footstep.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270414/
         game.load.audio('soundPoint', 'assets/point.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270408/
         game.load.audio('soundKey', 'assets/key.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270404/
         game.load.audio('soundWin', 'assets/win.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270402/
         game.load.audio('soundDoorLock', 'assets/doorLock.ogg'); //https://freesound.org/people/MrAuralization/sounds/158626/
+        game.load.audio('soundDeath', 'assets/death.ogg'); //https://freesound.org/people/DrMinky/sounds/167074/
         game.load.spritesheet('dude', 'assets/spritesheet.png', 23, 34);
         game.load.spritesheet('bird', 'assets/bird.png', 32, 32);
         game.load.spritesheet('doorOpening', 'assets/doorOpening.png', 64, 64);
@@ -83,10 +87,11 @@ var Game = {
         soundKey = game.add.audio('soundKey');
         soundWin = game.add.audio('soundWin');
         soundDoorLock = game.add.audio('soundDoorLock');
+        soundDeath = game.add.audio('soundDeath');
 
-        game.time.events.add(Phaser.Timer.SECOND, this.musicDelay, this);
-
-        //game.add.sprite(0, 0, 'sky');
+        if (sessionStorage.getItem('music') === 'true') {
+            game.time.events.add(Phaser.Timer.SECOND, this.musicDelay, this);
+        }
 
         var background = game.add.sprite(0, 0, 'background');
 
@@ -147,19 +152,6 @@ var Game = {
 
         door.frame = 1;
 
-
-
-        //points = game.add.group();
-
-        //points.enableBody = true;
-
-        //bigPoints = game.add.group();
-
-        //bigPoints.enableBody = true;
-
-        //var name = bigPoints.create(700, 160, 'bigPoint');
-        //name.body.immovable = true;
-
         this.scoreText = game.add.text(650, 10, 'Score: 0');
 
         var ground = platforms.create(0, game.world.height - 64, 'newGround');
@@ -205,7 +197,6 @@ var Game = {
 
         player.animations.add('left', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
         player.animations.add('right', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
-        player.animations.add('death', [3, 5, 6], 10, true);
 
         cursors = game.input.keyboard.createCursorKeys();
 
@@ -227,7 +218,6 @@ var Game = {
 
         this.placeRightSpike(250, 250);
 
-        //this.placePoints();
 		this.generatePoints();
 		this.generateBigPoints();
     },
@@ -254,12 +244,16 @@ var Game = {
         if (cursors.left.isDown && player.body.touching.down) {
             player.body.velocity.x = -150;
             player.animations.play('left');
-            soundFootstep.play('', 0, 1, true, false);
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundFootstep.play('', 0, 1, true, false);
+            }
         }
         else if (cursors.right.isDown && player.body.touching.down) {
             player.body.velocity.x = 150;
             player.animations.play('right');
-            soundFootstep.play('', 0, 1, true, false);
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundFootstep.play('', 0, 1, true, false);
+            }
         }
         else if (cursors.left.isDown) {
             player.body.velocity.x = -150;
@@ -272,7 +266,9 @@ var Game = {
         else {
             player.animations.stop();
             player.frame = 5;
-            soundFootstep.stop();
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundFootstep.stop();
+            }
         }
 
         if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
@@ -285,14 +281,24 @@ var Game = {
 
         if (hitSpike || hitSpikeLeft || hitSpikeRight) {
             this.spike();
-            player.animations.play('death');
-            player.body.moves = false;
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundDeath.play();
+            }
+            var emitter = game.add.emitter(0, 0, 1000);
+            emitter.makeParticles('blood');
+            emitter.gravity = 200;
+            emitter.x = player.x;
+            emitter.y = player.y;
+            emitter.start(true, 2000, null, 300);
+            player.kill();
         }
 
         if (hitKey) {
             game.add.text(game.world.centerX, game.world.centerY, 'You collected a key!').lifespan = 1000;
             keys.destroy();
-            soundKey.play();
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundKey.play();
+            }
             game.add.sprite(150, 20, 'key');
             keyInventory = 1;
         }
@@ -300,15 +306,16 @@ var Game = {
         if (hitDoor && keyInventory === 1) {
             game.add.text(game.world.centerX, game.world.centerY, 'Level complete');
             door.animations.play('door');
-            soundWin.play('', 0, 1, true, false);
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundWin.play('', 0, 1, true, false);
+            }
         }
         else if (hitDoor && keyInventory === 0) {
             game.add.text(game.world.centerX, game.world.centerY, 'You need to collect the key first').lifespan = 1000;
-            soundDoorLock.play();
+            if (sessionStorage.getItem('soundEffect') === 'true') {
+                soundDoorLock.play();
+            }
         }
-
-        //game.physics.arcade.overlap(player, this.point, this.collectPoint, null, this);
-        //game.physics.arcade.overlap(player, this.bigPoint, this.collectBigPoint, null, this);
     },
 
 	generatePoints: function () {
@@ -337,7 +344,9 @@ var Game = {
 	},
 
 	collectPoint: function (player, point) {
-		soundPoint.play();
+	    if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundPoint.play();
+        }
 		point.kill();
 		score += 10;
 		this.scoreText.text = 'Score: ' + score;
@@ -348,7 +357,9 @@ var Game = {
     },
 
 	collectBigPoint: function (player, bigPoint) {
-        soundPoint.play();
+	    if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundPoint.play();
+        }
         bigPoint.kill();
         score += 50;
         this.scoreText.text = 'Score: ' + score;
@@ -361,8 +372,8 @@ var Game = {
 
 	spike: function () {
         gameover = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER');
-        game.time.events.add(Phaser.Timer.SECOND * 4, this.restart, this);
-        restarting = game.add.text(game.world.centerX - 50, game.world.centerY - 50, 'Restarting in: ' + game.time.events.duration / 1000);
+        game.add.text(game.world.centerX - 50, game.world.centerY - 50, 'Restarting in 5 seconds');
+        game.time.events.add(Phaser.Timer.SECOND * 5, this.restart, this);
     },
 
 	placeSpike: function (x, y) {
