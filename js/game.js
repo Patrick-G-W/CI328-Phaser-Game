@@ -34,10 +34,11 @@ var soundWin;
 var soundDoorLock;
 var soundDeath;
 
-var gameover;
 var restarting;
 
 var stars;
+
+var textStyle;
 
 WebFontConfig = {
     active: function() {game.time.events.add(Phaser.Timer.SECOND, createText, this); },
@@ -63,8 +64,9 @@ var Game = {
         game.load.image('point', 'assets/point.png');
         game.load.image('bigPoint', 'assets/bigPoint.png');
         game.load.image('behindDoor', 'assets/behindDoor.png');
-        game.load.image('button', 'assets/dude.png');
         game.load.image('blood', 'assets/blood.png');
+        game.load.image('gameOver', 'assets/gameOver.png');
+        game.load.image('mediumButton', 'assets/mediumButton.png');
         game.load.audio('soundForest', 'assets/forest.ogg'); //https://freesound.org/people/VKProduktion/sounds/231537/
         game.load.audio('soundFootstep', 'assets/footstep.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270414/
         game.load.audio('soundPoint', 'assets/point.ogg'); //https://freesound.org/people/LittleRobotSoundFactory/sounds/270408/
@@ -76,6 +78,7 @@ var Game = {
         game.load.spritesheet('bird', 'assets/bird.png', 32, 32);
         game.load.spritesheet('doorOpening', 'assets/doorOpening.png', 64, 64);
         game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt');
+        game.load.json('textStyle', 'json/optionsTextStyle.json');
     },
 
 	create: function () {
@@ -88,6 +91,8 @@ var Game = {
         soundWin = game.add.audio('soundWin');
         soundDoorLock = game.add.audio('soundDoorLock');
         soundDeath = game.add.audio('soundDeath');
+
+        textStyle = game.cache.getJSON('textStyle');
 
         if (sessionStorage.getItem('music') === 'true') {
             game.time.events.add(Phaser.Timer.SECOND, this.musicDelay, this);
@@ -280,17 +285,7 @@ var Game = {
         }
 
         if (hitSpike || hitSpikeLeft || hitSpikeRight) {
-            this.spike();
-            if (sessionStorage.getItem('soundEffect') === 'true') {
-                soundDeath.play();
-            }
-            var emitter = game.add.emitter(0, 0, 1000);
-            emitter.makeParticles('blood');
-            emitter.gravity = 200;
-            emitter.x = player.x;
-            emitter.y = player.y;
-            emitter.start(true, 2000, null, 300);
-            player.kill();
+            this.death();
         }
 
         if (hitKey) {
@@ -370,10 +365,34 @@ var Game = {
         point.body.immovable = true;
     },
 
-	spike: function () {
-        gameover = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER');
-        game.add.text(game.world.centerX - 50, game.world.centerY - 50, 'Restarting in 5 seconds');
-        game.time.events.add(Phaser.Timer.SECOND * 5, this.restart, this);
+	death: function () {
+        game.add.image(game.world.centerX - 200, game.world.centerY - 134, 'gameOver').alpha = 0.6;
+
+        game.add.text(game.world.centerX - 150, game.world.centerY - 70, 'GAME OVER', {
+            align: 'center',
+            fill: '#234c8e',
+            fontSize: '50px',
+            font: 'Bangers'
+        });
+
+        game.add.button(game.world.centerX - 150, game.world.centerY + 20, 'mediumButton', this.restart, this);
+        game.add.text(game.world.centerX - 140, game.world.centerY + 30, 'Restart', textStyle);
+        game.add.button(game.world.centerX + 20, game.world.centerY + 20, 'mediumButton', this.backToMenu, this);
+        game.add.text(game.world.centerX + 50, game.world.centerY + 30, 'Quit', textStyle);
+
+        if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundDeath.play();
+        }
+        var emitter = game.add.emitter(0, 0, 1000);
+        emitter.makeParticles('blood');
+        emitter.gravity = 200;
+        emitter.x = player.x;
+        emitter.y = player.y;
+        emitter.start(true, 2000, null, 300);
+        player.kill();
+        if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundFootstep.stop();
+        }
     },
 
 	placeSpike: function (x, y) {
@@ -403,6 +422,13 @@ var Game = {
         keyInventory = 0;
         score = 0;
         this.game.state.restart();
+    },
+
+    backToMenu: function () {
+	    if (sessionStorage.getItem('soundEffect') === 'true') {
+	        soundForest.stop();
+        }
+	    this.state.start('Menu');
     },
 
 	render: function () {
