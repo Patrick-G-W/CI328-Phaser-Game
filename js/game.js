@@ -25,6 +25,7 @@ var bigPoints;
 
 var keys;
 var keyInventory = 0;
+var inventoryText;
 
 var soundForest;
 var soundFootstep;
@@ -38,18 +39,8 @@ var restarting;
 
 var stars;
 
-var textStyle;
-
-WebFontConfig = {
-    active: function() {game.time.events.add(Phaser.Timer.SECOND, createText, this); },
-    google: {
-        families: ['Bangers']
-    }
-};
-
 var Game = {
 	preload: function () {
-        //game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
         game.load.image('sky', 'assets/sky.png');
         game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
         game.load.image('ground', 'assets/ground.png');
@@ -77,8 +68,7 @@ var Game = {
         game.load.spritesheet('dude', 'assets/spritesheet.png', 23, 34);
         game.load.spritesheet('bird', 'assets/bird.png', 32, 32);
         game.load.spritesheet('doorOpening', 'assets/doorOpening.png', 64, 64);
-        game.load.bitmapFont('font', 'assets/font.png', 'assets/font.fnt');
-        game.load.json('textStyle', 'json/optionsTextStyle.json');
+        game.load.bitmapFont('8bitWonder', 'assets/8bitWonder.png', 'assets/8bitWonder.fnt');
     },
 
 	create: function () {
@@ -92,8 +82,6 @@ var Game = {
         soundDoorLock = game.add.audio('soundDoorLock');
         soundDeath = game.add.audio('soundDeath');
 
-        textStyle = game.cache.getJSON('textStyle');
-
         if (sessionStorage.getItem('music') === 'true') {
             game.time.events.add(Phaser.Timer.SECOND, this.musicDelay, this);
         }
@@ -103,7 +91,7 @@ var Game = {
         background.height = game.height;
         background.width = game.width;
 
-        game.add.text(10, 10, 'Inventory: ').font = 'Bangers';
+        this.inventoryText = game.add.bitmapText(10, 10, '8bitWonder', 'Inventory ', 20);
 
 
         behindDoors = game.add.group();
@@ -157,7 +145,7 @@ var Game = {
 
         door.frame = 1;
 
-        this.scoreText = game.add.text(650, 10, 'Score: 0');
+        this.scoreText = game.add.bitmapText(600, 10, '8bitWonder', 'Score 0', 20);
 
         var ground = platforms.create(0, game.world.height - 64, 'newGround');
 
@@ -174,7 +162,7 @@ var Game = {
         ledge.body.immovable = true;
 
         ledge.width = 400;
-        ledge.body.setSize(400, 30, 0, 5);
+        ledge.body.setSize(370, 30, 0, 5);
 
         ledge = platforms.create(600, 210, 'platform');
         ledge.body.immovable = true;
@@ -294,7 +282,7 @@ var Game = {
             if (sessionStorage.getItem('soundEffect') === 'true') {
                 soundKey.play();
             }
-            game.add.sprite(150, 20, 'key');
+            game.add.sprite(190, 10, 'key');
             keyInventory = 1;
         }
 
@@ -368,17 +356,15 @@ var Game = {
 	death: function () {
         game.add.image(game.world.centerX - 200, game.world.centerY - 134, 'gameOver').alpha = 0.6;
 
-        game.add.text(game.world.centerX - 150, game.world.centerY - 70, 'GAME OVER', {
-            align: 'center',
-            fill: '#234c8e',
-            fontSize: '50px',
-            font: 'Bangers'
-        });
+        game.add.bitmapText(game.world.centerX - 180, game.world.centerY - 70, '8bitWonder', 'GAME OVER', 40);
 
         game.add.button(game.world.centerX - 150, game.world.centerY + 20, 'mediumButton', this.restart, this);
-        game.add.text(game.world.centerX - 140, game.world.centerY + 30, 'Restart', textStyle);
+        game.add.bitmapText(game.world.centerX - 135, game.world.centerY + 50, '8bitWonder', 'Restart', 15);
         game.add.button(game.world.centerX + 20, game.world.centerY + 20, 'mediumButton', this.backToMenu, this);
-        game.add.text(game.world.centerX + 50, game.world.centerY + 30, 'Quit', textStyle);
+        game.add.bitmapText(game.world.centerX + 35, game.world.centerY + 40, '8bitWonder', 'Quit', 30);
+        game.add.bitmapText(game.world.centerX + 35, game.world.centerY + 40, '8bitWonder', 'Quit', 30);
+        game.add.bitmapText(game.world.centerX - 75, game.world.centerY - 20, '8bitWonder', this.scoreText.text, 20);
+        this.scoreText.kill();
 
         if (sessionStorage.getItem('soundEffect') === 'true') {
             soundDeath.play();
