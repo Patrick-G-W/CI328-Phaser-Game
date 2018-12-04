@@ -199,11 +199,11 @@ var Game2 = { // incorrect error, is used by other js files through states. with
         this.placeSpike(500, 277);
         this.placeSpike(250, 377);
         this.placeSpike(150, 377);
-        this.placeSpike(150, 512);
-        this.placeSpike(250, 512);
-        this.placeSpike(350, 512);
-        this.placeSpike(550, 512);
-        this.placeSpike(650, 512);
+        this.placeSpike(150, 515);
+        this.placeSpike(250, 515);
+        this.placeSpike(350, 515);
+        this.placeSpike(550, 515);
+        this.placeSpike(650, 515);
 
         this.placeRightSpike(200,120);
 
@@ -275,7 +275,6 @@ var Game2 = { // incorrect error, is used by other js files through states. with
         }
 
         if (hitKey) {
-            this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'You collected a key!').lifespan = 1000;
             keys.destroy();
             if (sessionStorage.getItem('soundEffect') === 'true') {
                 soundKey.play();
@@ -285,14 +284,9 @@ var Game2 = { // incorrect error, is used by other js files through states. with
         }
 
         if (hitDoor && keyInventory === 1) {
-            this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Level complete');
-            door.animations.play('door');
-            if (sessionStorage.getItem('soundEffect') === 'true') {
-                soundWin.play('', 0, 1, true, false);
-            }
+            this.levelComplete();
         }
         else if (hitDoor && keyInventory === 0) {
-            this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'You need to collect the key first').lifespan = 1000;
             if (sessionStorage.getItem('soundEffect') === 'true') {
                 soundDoorLock.play();
             }
@@ -406,8 +400,31 @@ var Game2 = { // incorrect error, is used by other js files through states. with
     backToMenu: function () {
         if (sessionStorage.getItem('soundEffect') === 'true') {
             soundForest.stop();
+            soundWin.stop();
         }
         this.state.start('Menu');
+    },
+
+    levelComplete: function () {
+        door.animations.play('door');
+        if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundWin.play('', 0, 1, false, false);
+        }
+        this.game.add.image(this.game.world.centerX - 200, this.game.world.centerY - 134, 'gameOver');
+        this.game.add.bitmapText(this.game.world.centerX - 175, this.game.world.centerY - 70, '8bitWonder', 'Level Complete', 25);
+        this.game.add.button(this.game.world.centerX - 150, this.game.world.centerY + 20, 'mediumButton', this.nextLevel, this);
+        this.game.add.bitmapText(this.game.world.centerX - 135, this.game.world.centerY + 35, '8bitWonder', 'Next \nLevel', 20);
+        this.game.add.button(this.game.world.centerX + 20, this.game.world.centerY + 20, 'mediumButton', this.backToMenu, this);
+        this.game.add.bitmapText(this.game.world.centerX + 35, this.game.world.centerY + 40, '8bitWonder', 'Quit', 30);
+        this.game.add.bitmapText(this.game.world.centerX - 75, this.game.world.centerY - 20, '8bitWonder', this.scoreText.text, 20);
+        this.scoreText.kill();
+    },
+
+    nextLevel: function () {
+        if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundWin.stop();
+        }
+        this.state.start('Game3');
     },
 
     render: function () {

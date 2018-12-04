@@ -1,4 +1,4 @@
-console.log('Game loaded');
+console.log('Game3 loaded');
 
 var player;
 var platforms;
@@ -32,8 +32,8 @@ var soundWin;
 var soundDoorLock;
 var soundDeath;
 
-var Game = { // incorrect error, is used by other js files through states. without game, other js cannot tell what this file is
-	preload: function () {
+var Game3 = { // incorrect error, is used by other js files through states. without game, other js cannot tell what this file is
+    preload: function () {
         this.game.load.image('sky', 'assets/sky.png');
         this.game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
         this.game.load.image('ground', 'assets/ground.png');
@@ -64,7 +64,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
         this.game.load.bitmapFont('8bitWonder', 'assets/8bitWonder.png', 'assets/8bitWonder.fnt');
     },
 
-	create: function () {
+    create: function () {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         soundForest = this.game.add.audio('soundForest');
@@ -88,7 +88,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
 
         behindDoors = this.game.add.group();
-        var behindDoor = behindDoors.create(720, 465, 'behindDoor');
+        var behindDoor = behindDoors.create(722, 45, 'behindDoor');
 
         behindDoor.scale.setTo(1, 1);
 
@@ -120,7 +120,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
         keys.enableBody = true;
 
-        var key = keys.create(10, 150, 'key');
+        var key = keys.create(450, 200, 'key');
 
         key.body.gravity.y = 100;
 
@@ -130,7 +130,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
         doors.enableBody = true;
 
-        door = doors.create(730, 475, 'doorOpening');
+        door = doors.create(730, 55, 'doorOpening');
 
         door.animations.add('door', [1, 2, 3, 4], 3, false);
 
@@ -149,19 +149,24 @@ var Game = { // incorrect error, is used by other js files through states. witho
         ledge.body.immovable = true;
 
         ledge.width = 400;
-        ledge.body.setSize(400, 30, 0, 5);
+        ledge.body.setSize(375, 30, 0, 5);
 
-        ledge = platforms.create(-150, 250, 'platform');
+        ledge = platforms.create(- 100, 250, 'platform');
         ledge.body.immovable = true;
 
-        ledge.width = 400;
-        ledge.body.setSize(370, 30, 0, 5);
+        ledge.width = 375;
+        ledge.body.setSize(375, 30, 0, 5);
 
-        ledge = platforms.create(600, 210, 'platform');
+        ledge = platforms.create(0, 400, 'platform');
         ledge.body.immovable = true;
 
         ledge.width = 300;
-        ledge.body.setSize(400, 30, 0, 5);
+        ledge.body.setSize(375, 30, 0, 5);
+
+        ledge = platforms.create(500, 120, 'platform');
+        ledge.body.immovable = true;
+
+        ledge.width = 300;
 
         bird = this.game.add.sprite(-50, 30, 'bird');
 
@@ -173,7 +178,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
         this.game.add.tween(bird).to({x: 850}, 10000, Phaser.Easing.Quadratic.InOut, true, 5000, 1000, false);
 
-        player = this.game.add.sprite(32, this.game.world.height - 150, 'dude');
+        player = this.game.add.sprite(10, 10, 'dude');
 
         this.game.physics.arcade.enable(player);
 
@@ -187,28 +192,33 @@ var Game = { // incorrect error, is used by other js files through states. witho
         cursors = this.game.input.keyboard.createCursorKeys();
 
 
+        this.placeSpring(225, 235);
+        this.placeSpring(245, 385);
+        this.placeSpring(330, 520);
 
-        this.placeSpring(360, 520);
+        this.placeSpike(550, 100);
+        this.placeSpike(150, 230);
+        this.placeSpike(70, 377);
+        this.placeSpike(140, 377);
+        this.placeSpike(500, 377);
+        this.placeSpike(650, 377);
+        this.placeSpike(150, 510);
+        this.placeSpike(250, 512);
+        this.placeSpike(450, 512);
+        this.placeSpike(550, 512);
+        this.placeSpike(650, 512);
 
-        this.placeSpring(440, 380);
+        this.placeRightSpike(270,250);
+        this.placeRightSpike(295,400);
 
-        this.placeSpike(300, 515);
+        this.placeLeftSpike(377, 400);
+        this.placeLeftSpike(470, 120);
 
-        this.placeSpike(200, 515);
-
-        this.placeSpike(400, 375);
-
-        this.placeLeftSpike(370, 400);
-
-        this.placeLeftSpike(570, 210);
-
-        this.placeRightSpike(250, 250);
-
-		this.generatePoints();
-		this.generateBigPoints();
+        this.generatePoints();
+        this.generateBigPoints();
     },
 
-	update: function () {
+    update: function () {
         var hitPlatform = this.game.physics.arcade.collide(player, platforms);
         var hitSpring = this.game.physics.arcade.collide(player, springs);
         var hitSpike = this.game.physics.arcade.collide(player, spikes);
@@ -288,46 +298,41 @@ var Game = { // incorrect error, is used by other js files through states. witho
         }
     },
 
-	generatePoints: function () {
-		points = this.game.add.group();
-		points.enableBody = true;
+    generatePoints: function () {
+        points = this.game.add.group();
+        points.enableBody = true;
 
-		var point = points.create(140, 500, 'point');
-		point = points.create(210, 490, 'point');
-		point = points.create(310, 490, 'point');
-		point = points.create(330, 370, 'point');
-		point = points.create(370, 300, 'point');
-		point = points.create(450, 340, 'point');
-		point = points.create(550, 360, 'point');
-		point = points.create(620, 360, 'point');
-		point = points.create(690, 360, 'point');
-		point = points.create(650, 170, 'point');
-		point = points.create(150, 210, 'point');
-		point = points.create(100, 210, 'point');
-	},
-
-	generateBigPoints: function () {
-		bigPoints = this.game.add.group();
-		bigPoints.enableBody = true;
-
-		bigPoints.create(700, 160, 'bigPoint');
-	},
-
-	collectPoint: function (player, point) {
-	    if (sessionStorage.getItem('soundEffect') === 'true') {
-            soundPoint.play();
-        }
-		point.kill();
-		score += 10;
-		this.scoreText.text = 'Score: ' + score;
-	},
-
-	musicDelay: function () {
-		soundForest.play('', 0, 0.5, true, false);
+        var point = points.create(600, 80, 'point');
+        point = points.create(100, 210, 'point');
+        point = points.create(50, 210, 'point');
+        point = points.create(30, 360, 'point');
+        point = points.create(110, 360, 'point');
+        point = points.create(700, 500, 'point');
+        point = points.create(750, 500, 'point');
     },
 
-	collectBigPoint: function (player, bigPoint) {
-	    if (sessionStorage.getItem('soundEffect') === 'true') {
+    generateBigPoints: function () {
+        bigPoints = this.game.add.group();
+        bigPoints.enableBody = true;
+
+        bigPoints.create(750, 350, 'bigPoint');
+    },
+
+    collectPoint: function (player, point) {
+        if (sessionStorage.getItem('soundEffect') === 'true') {
+            soundPoint.play();
+        }
+        point.kill();
+        score += 10;
+        this.scoreText.text = 'Score: ' + score;
+    },
+
+    musicDelay: function () {
+        soundForest.play('', 0, 0.5, true, false);
+    },
+
+    collectBigPoint: function (player, bigPoint) {
+        if (sessionStorage.getItem('soundEffect') === 'true') {
             soundPoint.play();
         }
         bigPoint.kill();
@@ -335,12 +340,12 @@ var Game = { // incorrect error, is used by other js files through states. witho
         this.scoreText.text = 'Score: ' + score;
     },
 
-	placePoint: function (x, y) {
+    placePoint: function (x, y) {
         point = points.create(x, y, 'point');
         point.body.immovable = true;
     },
 
-	death: function () {
+    death: function () {
         this.game.add.image(this.game.world.centerX - 200, this.game.world.centerY - 134, 'gameOver').alpha = 0.6;
 
         this.game.add.bitmapText(this.game.world.centerX - 180, this.game.world.centerY - 70, '8bitWonder', 'GAME OVER', 40);
@@ -368,41 +373,41 @@ var Game = { // incorrect error, is used by other js files through states. witho
         }
     },
 
-	placeSpike: function (x, y) {
+    placeSpike: function (x, y) {
         var name = spikes.create(x, y, 'spikes');
         name.body.setSize(10, 30, 10);
         name.body.immovable = true;
     },
 
-	placeLeftSpike: function (x, y) {
+    placeLeftSpike: function (x, y) {
         var name = spikesLeft.create(x, y, 'spikesLeft');
         name.body.setSize(30, 10, 0, 10);
         name.body.immovable = true;
     },
 
-	placeRightSpike: function (x, y) {
+    placeRightSpike: function (x, y) {
         var name = spikesRight.create(x, y, 'spikesRight');
         name.body.setSize(30, 10, 0, 10);
         name.body.immovable = true;
     },
 
-	placeSpring: function (x, y) {
+    placeSpring: function (x, y) {
         var name = springs.create(x, y, 'springs');
         name.body.immovable = true;
     },
 
-	restart: function () {
+    restart: function () {
         keyInventory = 0;
         score = 0;
         this.game.state.restart();
     },
 
     backToMenu: function () {
-	    if (sessionStorage.getItem('soundEffect') === 'true') {
+        if (sessionStorage.getItem('soundEffect') === 'true') {
             soundForest.stop();
             soundWin.stop();
         }
-	    this.state.start('Menu');
+        this.state.start('Menu');
     },
 
     levelComplete: function () {
@@ -412,19 +417,10 @@ var Game = { // incorrect error, is used by other js files through states. witho
         }
         this.game.add.image(this.game.world.centerX - 200, this.game.world.centerY - 134, 'gameOver');
         this.game.add.bitmapText(this.game.world.centerX - 175, this.game.world.centerY - 70, '8bitWonder', 'Level Complete', 25);
-        this.game.add.button(this.game.world.centerX - 150, this.game.world.centerY + 20, 'mediumButton', this.nextLevel, this);
-        this.game.add.bitmapText(this.game.world.centerX - 135, this.game.world.centerY + 35, '8bitWonder', 'Next \nLevel', 20);
-        this.game.add.button(this.game.world.centerX + 20, this.game.world.centerY + 20, 'mediumButton', this.backToMenu, this);
-        this.game.add.bitmapText(this.game.world.centerX + 35, this.game.world.centerY + 40, '8bitWonder', 'Quit', 30);
-        this.game.add.bitmapText(this.game.world.centerX - 75, this.game.world.centerY - 20, '8bitWonder', this.scoreText.text, 20);
+        this.game.add.button(this.game.world.centerX - 65, this.game.world.centerY + 20, 'mediumButton', this.backToMenu, this);
+        this.game.add.bitmapText(this.game.world.centerX - 50, this.game.world.centerY + 40, '8bitWonder', 'Quit', 30);
+        this.game.add.bitmapText(this.game.world.centerX - 63, this.game.world.centerY - 20, '8bitWonder', this.scoreText.text, 20);
         this.scoreText.kill();
-    },
-
-    nextLevel: function () {
-	    if (sessionStorage.getItem('soundEffect') === 'true') {
-	        soundWin.stop();
-        }
-        this.state.start('Game2');
     },
 
     render: function () {
