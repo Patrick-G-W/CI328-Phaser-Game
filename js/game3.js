@@ -17,7 +17,6 @@ var doors;
 var door;
 var behindDoors;
 
-var point;
 var points;
 var bigPoints;
 
@@ -84,8 +83,7 @@ var Game3 = { // incorrect error, is used by other js files through states. with
         background.height = this.game.height;
         background.width = this.game.width;
 
-        this.inventoryText = this.game.add.bitmapText(10, 10, '8bitWonder', 'Inventory ', 20);
-
+        this.game.add.bitmapText(10, 10, '8bitWonder', 'Inventory ', 20);
 
         behindDoors = this.game.add.group();
         var behindDoor = behindDoors.create(722, 45, 'behindDoor');
@@ -338,11 +336,6 @@ var Game3 = { // incorrect error, is used by other js files through states. with
         bigPoint.kill();
         score += 50;
         this.scoreText.text = 'Score: ' + score;
-    },
-
-    placePoint: function (x, y) {
-        point = points.create(x, y, 'point');
-        point.body.immovable = true;
     },
 
     death: function () {
