@@ -25,23 +25,15 @@ var Options = {
         soundEffectsNo = this.add.button(this.game.world.centerX + 125, this.game.world.centerY - 10, 'smolButton', this.disallowSoundEffects, this);
         back = this.add.button(this.game.world.centerX - 124, this.game.world.centerY + 100, 'button', this.back, this);
         this.createText();
-        sessionStorage.setItem('music', 'true');
+        sessionStorage.setItem('music', 'true'); // use a cookie to hold the users data
         sessionStorage.setItem('soundEffect', 'true');
     },
 
-    update: function () {
-        
-    },
-
-    render: function () {
-
-    },
-
     allowMusic: function () {
-        sessionStorage.setItem('music', 'true');
+        sessionStorage.setItem('music', 'true'); // set music cookie to equal true
         musicYes = this.add.button(this.game.world.centerX + 40, this.game.world.centerY - 110, 'smolButtonSelected', this.allowMusic, this);
         musicNo = this.add.button(this.game.world.centerX + 125, this.game.world.centerY - 110, 'smolButton', this.disallowMusic, this);
-        this.createText();
+        this.createText(); // re-initialize the function so that it writes the text on top of the buttons again
     },
 
     disallowMusic: function () {
@@ -82,6 +74,6 @@ var Options = {
     },
 
     back: function () {
-        this.state.start('Menu');
+        this.state.start('Menu'); // goes back to the menu
     }
 };

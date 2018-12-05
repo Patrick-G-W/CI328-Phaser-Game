@@ -15,7 +15,7 @@ var Menu = {
         this.game.add.sprite(0, 0, 'background');
         startButton = this.add.button(this.game.world.centerX - 124, this.game.world.centerY, 'button', this.startGame, this);
         optionsButton = this.add.button(this.game.world.centerX - 124, this.game.world.centerY + 100, 'button', this.options, this);
-        this.createText();
+        this.createText(); // load last so they are rendered on top of the buttons above
     },
 
     createText: function () {

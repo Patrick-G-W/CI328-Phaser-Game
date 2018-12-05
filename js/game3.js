@@ -296,6 +296,17 @@ var Game3 = { // incorrect error, is used by other js files through states. with
         }
     },
 
+    render: function () {
+        //this.game.debug.body(player);
+        //this.game.debug.physicsGroup(spikes);
+        //this.game.debug.physicsGroup(springs);
+        //this.game.debug.physicsGroup(spikesLeft);
+        //this.game.debug.physicsGroup(spikesRight);
+        //this.game.debug.physicsGroup(keys);
+        //this.game.debug.physicsGroup(springs);
+        //this.game.debug.physicsGroup(platforms);
+    },
+
     generatePoints: function () {
         points = this.game.add.group();
         points.enableBody = true;
@@ -414,16 +425,5 @@ var Game3 = { // incorrect error, is used by other js files through states. with
         this.game.add.bitmapText(this.game.world.centerX - 50, this.game.world.centerY + 40, '8bitWonder', 'Quit', 30);
         this.game.add.bitmapText(this.game.world.centerX - 63, this.game.world.centerY - 20, '8bitWonder', this.scoreText.text, 20);
         this.scoreText.kill();
-    },
-
-    render: function () {
-        //this.game.debug.body(player);
-        //this.game.debug.physicsGroup(spikes);
-        //this.game.debug.physicsGroup(springs);
-        //this.game.debug.physicsGroup(spikesLeft);
-        //this.game.debug.physicsGroup(spikesRight);
-        //this.game.debug.physicsGroup(keys);
-        //this.game.debug.physicsGroup(springs);
-        //this.game.debug.physicsGroup(platforms);
     }
 };

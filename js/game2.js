@@ -292,6 +292,17 @@ var Game2 = { // incorrect error, is used by other js files through states. with
         }
     },
 
+    render: function () {
+        //this.game.debug.body(player);
+        //this.game.debug.physicsGroup(spikes);
+        //this.game.debug.physicsGroup(springs);
+        //this.game.debug.physicsGroup(spikesLeft);
+        //this.game.debug.physicsGroup(spikesRight);
+        //this.game.debug.physicsGroup(keys);
+        //this.game.debug.physicsGroup(springs);
+        //this.game.debug.physicsGroup(platforms);
+    },
+
     generatePoints: function () {
         points = this.game.add.group();
         points.enableBody = true;
@@ -419,16 +430,5 @@ var Game2 = { // incorrect error, is used by other js files through states. with
             soundWin.stop();
         }
         this.state.start('Game3');
-    },
-
-    render: function () {
-        //this.game.debug.body(player);
-        //this.game.debug.physicsGroup(spikes);
-        //this.game.debug.physicsGroup(springs);
-        //this.game.debug.physicsGroup(spikesLeft);
-        //this.game.debug.physicsGroup(spikesRight);
-        //this.game.debug.physicsGroup(keys);
-        //this.game.debug.physicsGroup(springs);
-        //this.game.debug.physicsGroup(platforms);
     }
 };

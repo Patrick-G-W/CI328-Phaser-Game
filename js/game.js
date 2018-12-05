@@ -31,7 +31,7 @@ var soundWin;
 var soundDoorLock;
 var soundDeath;
 
-var Game = { // incorrect error, is used by other js files through states. without game, other js cannot tell what this file is
+var Game = { // needed to tell which state this is
 	preload: function () {
         this.game.load.image('sky', 'assets/sky.png');
         this.game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
@@ -60,13 +60,13 @@ var Game = { // incorrect error, is used by other js files through states. witho
         this.game.load.spritesheet('dude', 'assets/spritesheet.png', 23, 34);
         this.game.load.spritesheet('bird', 'assets/bird.png', 32, 32);
         this.game.load.spritesheet('doorOpening', 'assets/doorOpening.png', 64, 64);
-        this.game.load.bitmapFont('8bitWonder', 'assets/8bitWonder.png', 'assets/8bitWonder.fnt');
+        this.game.load.bitmapFont('8bitWonder', 'assets/8bitWonder.png', 'assets/8bitWonder.fnt'); //https://www.dafont.com/8bit-wonder.font
     },
 
 	create: function () {
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        this.game.physics.startSystem(Phaser.Physics.ARCADE); // declare physics engine
 
-        soundForest = this.game.add.audio('soundForest');
+        soundForest = this.game.add.audio('soundForest'); // declare audio to variable
         soundFootstep = this.game.add.audio('soundFootstep');
         soundPoint = this.game.add.audio('soundPoint');
         soundKey = this.game.add.audio('soundKey');
@@ -74,24 +74,24 @@ var Game = { // incorrect error, is used by other js files through states. witho
         soundDoorLock = this.game.add.audio('soundDoorLock');
         soundDeath = this.game.add.audio('soundDeath');
 
-        if (sessionStorage.getItem('music') === 'true') {
+        if (sessionStorage.getItem('music') === 'true') { // check cookie storage, if user chose 'Yes' for allow music, play music
             this.game.time.events.add(Phaser.Timer.SECOND, this.musicDelay, this);
         }
 
         var background = this.game.add.sprite(0, 0, 'background');
 
-        background.height = this.game.height;
+        background.height = this.game.height; // set background image to the same size as the canvas
         background.width = this.game.width;
 
         this.game.add.bitmapText(10, 10, '8bitWonder', 'Inventory ', 20);
 
 
         behindDoors = this.game.add.group();
-        var behindDoor = behindDoors.create(720, 465, 'behindDoor');
+        var behindDoor = behindDoors.create(720, 465, 'behindDoor'); // the bush part behind the big door
 
         behindDoor.scale.setTo(1, 1);
 
-        platforms = this.game.add.group();
+        platforms = this.game.add.group(); // declaring all groups, groups make managing separate sprites easier
 
         platforms.enableBody = true;
 
@@ -121,9 +121,9 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
         var key = keys.create(10, 150, 'key');
 
-        key.body.gravity.y = 100;
+        key.body.gravity.y = 100; // set key gravity so that it falls
 
-        key.body.bounce.y = 1;
+        key.body.bounce.y = 1; // bounces off of collision objects
 
         doors = this.game.add.group();
 
@@ -131,18 +131,18 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
         door = doors.create(730, 475, 'doorOpening');
 
-        door.animations.add('door', [1, 2, 3, 4], 3, false);
+        door.animations.add('door', [1, 2, 3, 4], 3, false); // the door opening animation when you go to the next level
 
-        door.body.immovable = true;
+        door.body.immovable = true; // make sure the user cannot move the door when they hit it
 
-        door.frame = 1;
+        door.frame = 1; // default frame when the sprite loads in
 
         this.scoreText = this.game.add.bitmapText(600, 10, '8bitWonder', 'Score 0', 20);
 
         var ground = platforms.create(0, this.game.world.height - 64, 'newGround');
 
         ground.body.immovable = true;
-        ground.body.setSize(800, 100, 0, 5);
+        ground.body.setSize(800, 100, 0, 5); // changing the collision size, needed if the engine cannot properly detect the box detection
 
         var ledge = platforms.create(400, 400, 'platform');
         ledge.body.immovable = true;
@@ -170,7 +170,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
 
         bird.animations.play('right');
 
-        this.game.add.tween(bird).to({x: 850}, 10000, Phaser.Easing.Quadratic.InOut, true, 5000, 1000, false);
+        this.game.add.tween(bird).to({x: 850}, 10000, Phaser.Easing.Quadratic.InOut, true, 5000, 1000, false); // adds flying animation
 
         player = this.game.add.sprite(32, this.game.world.height - 150, 'dude');
 
@@ -180,12 +180,13 @@ var Game = { // incorrect error, is used by other js files through states. witho
         player.body.collideWorldBounds = true;
         player.body.setSize(15, 35, 3);
 
-        player.animations.add('left', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
-        player.animations.add('right', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
+        player.animations.add('left', [8, 9, 10, 11, 12, 13, 14, 15], 10, true); // animation when player is moving left
+        player.animations.add('right', [0, 1, 2, 3, 4, 5, 6, 7], 10, true); // '' moving right
 
-        cursors = this.game.input.keyboard.createCursorKeys();
+        cursors = this.game.input.keyboard.createCursorKeys(); // needed for the game to recognise keyboard keys
 
-
+        // placing all of the items on the map. points and bigpoints are in functions because there are usually more points than spikes or springs in the game,
+        // and I don't want to make the create function too long
 
         this.placeSpring(360, 520);
 
@@ -226,14 +227,14 @@ var Game = { // incorrect error, is used by other js files through states. witho
         player.body.velocity.x = 0;
 
 
-        if (cursors.left.isDown && player.body.touching.down) {
-            player.body.velocity.x = -150;
-            player.animations.play('left');
-            if (sessionStorage.getItem('soundEffect') === 'true') {
+        if (cursors.left.isDown && player.body.touching.down) { // if left button is held down and the player is touching something (usually the floor)
+            player.body.velocity.x = -150; // move the player -150 along the x axis
+            player.animations.play('left'); // play the left animation
+            if (sessionStorage.getItem('soundEffect') === 'true') { // if the soundEffect cookie is true, play sound effect
                 soundFootstep.play('', 0, 1, true, false);
             }
         }
-        else if (cursors.right.isDown && player.body.touching.down) {
+        else if (cursors.right.isDown && player.body.touching.down) { // same as above but right
             player.body.velocity.x = 150;
             player.animations.play('right');
             if (sessionStorage.getItem('soundEffect') === 'true') {
@@ -252,7 +253,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
             player.animations.stop();
             player.frame = 5;
             if (sessionStorage.getItem('soundEffect') === 'true') {
-                soundFootstep.stop();
+                soundFootstep.stop(); // stop the footstep sound when the player stops moving or is not touching any object
             }
         }
 
@@ -264,16 +265,16 @@ var Game = { // incorrect error, is used by other js files through states. witho
             player.body.velocity.y = -350;
         }
 
-        if (hitSpike || hitSpikeLeft || hitSpikeRight) {
+        if (hitSpike || hitSpikeLeft || hitSpikeRight) { // if the player hits a spike
             this.death();
         }
 
         if (hitKey) {
-            keys.destroy();
+            keys.destroy(); // destroy the key from the map when they collect it
             if (sessionStorage.getItem('soundEffect') === 'true') {
                 soundKey.play();
             }
-            this.game.add.sprite(190, 10, 'key');
+            this.game.add.sprite(190, 10, 'key'); // add key to inventory
             keyInventory = 1;
         }
 
@@ -287,10 +288,21 @@ var Game = { // incorrect error, is used by other js files through states. witho
         }
     },
 
+    render: function () {
+        //this.game.debug.body(player);
+        //this.game.debug.physicsGroup(spikes);
+        //this.game.debug.physicsGroup(springs);
+        //this.game.debug.physicsGroup(spikesLeft);
+        //this.game.debug.physicsGroup(spikesRight);
+        //this.game.debug.physicsGroup(keys);
+        //this.game.debug.physicsGroup(springs);
+        //this.game.debug.physicsGroup(platforms);
+    },
+
 	generatePoints: function () {
 		points = this.game.add.group();
 		points.enableBody = true;
-
+        // all the points being created
 		var point = points.create(140, 500, 'point');
 		point = points.create(210, 490, 'point');
 		point = points.create(310, 490, 'point');
@@ -317,7 +329,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
             soundPoint.play();
         }
 		point.kill();
-		score += 10;
+		score += 10; // add 10 to the score in the top right corner
 		this.scoreText.text = 'Score: ' + score;
 	},
 
@@ -350,21 +362,21 @@ var Game = { // incorrect error, is used by other js files through states. witho
         if (sessionStorage.getItem('soundEffect') === 'true') {
             soundDeath.play();
         }
-        var emitter = this.game.add.emitter(0, 0, 1000);
+        var emitter = this.game.add.emitter(0, 0, 1000); // when the user dies, the player will explode into blood particles
         emitter.makeParticles('blood');
         emitter.gravity = 200;
         emitter.x = player.x;
         emitter.y = player.y;
-        emitter.start(true, 2000, null, 300);
-        player.kill();
+        emitter.start(true, 2000, null, 300); // increasing the numbers here can make the effect seem too square, so I had to find a good balance
+        player.kill(); // remove the player from the users view
         if (sessionStorage.getItem('soundEffect') === 'true') {
             soundFootstep.stop();
         }
     },
 
-	placeSpike: function (x, y) {
+	placeSpike: function (x, y) { // made placing objects a separate function to make the process easier
         var name = spikes.create(x, y, 'spikes');
-        name.body.setSize(10, 30, 10);
+        name.body.setSize(10, 30, 10); // change the size of the collision for the spikes because arcade physics engine only uses boxes, and a box around a triangle was too large
         name.body.immovable = true;
     },
 
@@ -388,7 +400,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
 	restart: function () {
         keyInventory = 0;
         score = 0;
-        this.game.state.restart();
+        this.game.state.restart(); // restart the current state, in other words restart the level
     },
 
     backToMenu: function () {
@@ -400,7 +412,7 @@ var Game = { // incorrect error, is used by other js files through states. witho
     },
 
     levelComplete: function () {
-        door.animations.play('door');
+        door.animations.play('door'); // plays the door opening animation
         if (sessionStorage.getItem('soundEffect') === 'true') {
             soundWin.play('', 0, 1, false, false);
         }
@@ -411,24 +423,13 @@ var Game = { // incorrect error, is used by other js files through states. witho
         this.game.add.button(this.game.world.centerX + 20, this.game.world.centerY + 20, 'mediumButton', this.backToMenu, this);
         this.game.add.bitmapText(this.game.world.centerX + 35, this.game.world.centerY + 40, '8bitWonder', 'Quit', 30);
         this.game.add.bitmapText(this.game.world.centerX - 75, this.game.world.centerY - 20, '8bitWonder', this.scoreText.text, 20);
-        this.scoreText.kill();
+        this.scoreText.kill(); // remove scoreText and add it to the centre of the screen so that we can see it in the menu
     },
 
     nextLevel: function () {
 	    if (sessionStorage.getItem('soundEffect') === 'true') {
 	        soundWin.stop();
         }
-        this.state.start('Game2');
-    },
-
-    render: function () {
-        //this.game.debug.body(player);
-        //this.game.debug.physicsGroup(spikes);
-        //this.game.debug.physicsGroup(springs);
-        //this.game.debug.physicsGroup(spikesLeft);
-        //this.game.debug.physicsGroup(spikesRight);
-        //this.game.debug.physicsGroup(keys);
-        //this.game.debug.physicsGroup(springs);
-        //this.game.debug.physicsGroup(platforms);
+        this.state.start('Game2'); // being next level
     }
 };
