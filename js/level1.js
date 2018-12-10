@@ -1,4 +1,4 @@
-console.log('Game loaded');
+console.log('Level 1 loaded');
 
 var player;
 var platforms;
@@ -31,7 +31,7 @@ var soundWin;
 var soundDoorLock;
 var soundDeath;
 
-var Game = { // needed to tell which state this is
+var level1 = { // needed to tell which state this is
 	preload: function () {
         this.game.load.image('sky', 'assets/sky.png');
         this.game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
@@ -408,7 +408,7 @@ var Game = { // needed to tell which state this is
             soundForest.stop();
             soundWin.stop();
         }
-	    this.state.start('Menu');
+	    this.state.start('MainMenu');
     },
 
     levelComplete: function () {
@@ -430,6 +430,6 @@ var Game = { // needed to tell which state this is
 	    if (sessionStorage.getItem('soundEffect') === 'true') {
 	        soundWin.stop();
         }
-        this.state.start('Game2'); // being next level
+        this.state.start('level2'); // being next level
     }
 };

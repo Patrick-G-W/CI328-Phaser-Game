@@ -3,7 +3,7 @@ console.log('Menu loaded');
 var startButton;
 var optionsButton;
 
-var Menu = {
+var MainMenu = {
     preload: function () {
         this.game.load.image('background', 'assets/menuBackground.jpg'); //https://www.freeimages.com/photo/jungle-1377573
         this.game.load.image('button', 'assets/button.png');
@@ -27,7 +27,7 @@ var Menu = {
     },
     
     startGame: function () {
-        this.state.start('Game');
+        this.state.start('level1');
     },
 
     options: function () {

@@ -74,6 +74,6 @@ var Options = {
     },
 
     back: function () {
-        this.state.start('Menu'); // goes back to the menu
+        this.state.start('MainMenu'); // goes back to the menu
     }
 };
