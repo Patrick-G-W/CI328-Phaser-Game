@@ -33,7 +33,6 @@ var soundDeath;
 
 var level1 = { // needed to tell which state this is
 	preload: function () {
-        this.game.load.image('sky', 'assets/sky.png');
         this.game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
         this.game.load.image('ground', 'assets/ground.png');
         this.game.load.image('newGround', 'assets/newGround.png');

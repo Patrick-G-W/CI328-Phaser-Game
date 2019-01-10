@@ -33,7 +33,6 @@ var soundDeath;
 
 var level3 = { // incorrect error, is used by other js files through states. without game, other js cannot tell what this file is
     preload: function () {
-        this.game.load.image('sky', 'assets/sky.png');
         this.game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
         this.game.load.image('ground', 'assets/ground.png');
         this.game.load.image('newGround', 'assets/newGround.png');
