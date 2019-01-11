@@ -34,7 +34,6 @@ var soundDeath;
 var level1 = { // needed to tell which state this is
 	preload: function () {
         this.game.load.image('background', 'assets/background.png'); //https://jesse-m.itch.io/jungle-pack
-        this.game.load.image('ground', 'assets/ground.png');
         this.game.load.image('newGround', 'assets/newGround.png');
         this.game.load.image('platform', 'assets/platform.png');
         this.game.load.image('springs', 'assets/jump.png'); //http://pixelartmaker.com/art/4dae9891e38493b
